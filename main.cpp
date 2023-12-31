@@ -11,6 +11,8 @@
 #include "Satellite.h"
 
 static const std::string inputFilename {"27000sats.txt"};
+static const double max_t = Satellite::time(0,0,5,0,0,0);
+static const double delta_t = Satellite::time(0,0,0,0,0,0.1);
 static const LatLongRegion region {{16.66673, 103.58196},
 {69.74973,-120.64459},
 {-21.09096, -119.71009},
@@ -18,7 +20,7 @@ static const LatLongRegion region {{16.66673, 103.58196},
                             //that appear straight in the cylindrical projection of the 
                             //assumed sphere of the Earth
 
-static const int max_group_size = 100;    
+static const int max_group_size = 5000;    //Number of sequential calculations carried out per satellite task
 
 std::vector<StateVector> group_task(const Satellite& satellite, const std::vector<double>& time_values) {
     std::vector<StateVector> state_vectors;
@@ -30,8 +32,6 @@ std::vector<StateVector> group_task(const Satellite& satellite, const std::vecto
 
 std::vector<StateVector> satellite_task(const Satellite& satellite) {
     std::vector<std::future<std::vector<StateVector>>> group_futures;
-    double max_t = Satellite::time(0,0,5,0,0,0);
-    double delta_t = Satellite::time(0,0,0,0,0,1);
     
     std::vector<double> group; //group of time values
     for (double t=0; t<=max_t; t+=delta_t) {
@@ -79,5 +79,6 @@ int main(int argc, char const *argv[])
     #endif
     
     std::cout << "done" << std::endl;
+
     return 0;
 }
