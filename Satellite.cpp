@@ -29,7 +29,7 @@ std::vector<Satellite> Satellite::readSatelliteFile(const std::string& inputFile
     return satelliteList;
 }
 
-StateVector Satellite::findStateVector(double time) const {
+StateVector Satellite::findStateVector(double time, const LatLongRegion& region) const {
     double r[3], v[3];
     double p, a, ecc, incl, omega, argp, nu, m, arglat, truelon, lonper;
     auto tempSatRec = satelliteRecord;
@@ -41,7 +41,9 @@ StateVector Satellite::findStateVector(double time) const {
     arglat*180.0/PI, //Lat
     truelon*180.0/PI, //Long
     SGP4Funcs::mag_SGP4(r) - satelliteRecord.radiusearthkm, //Alt
-    this}; //pointer to satellite
+    this, //pointer to satellite
+    };
+    out.withinRegion = Satellite::containedIn(out, region);
     return out;
 }
 
@@ -58,13 +60,13 @@ double Satellite::time(int year, int month, int day, int hour, int minute, doubl
     return jday+jdayFrac;
 }
 
-Satellite::Satellite(std::string tle_1, std::string tle_2) {
+Satellite::Satellite(const std::string& tle_1, const std::string& tle_2) {
     typerun = 'c'; //catalog mode as we're reading from the testfile containing TLE data
     typeinput = 'e'; //epoch input type
     opsmode = 'i'; //best operation mode for smooth behaviour
     whichconst = wgs84; //most recent values for constants
 
-    char *temp1{strdup(tle_1.c_str())}, *temp2{strdup(tle_2.c_str())};
+    char *temp1{strdup(tle_1.c_str())}, *temp2{strdup(tle_2.c_str())}; //C-style strings in heap
     SGP4Funcs::twoline2rv(temp1, temp2, typerun, typeinput, opsmode,
     whichconst,  startmfe, stopmfe, deltamin, satelliteRecord); //converts TLE to startmfe, stopmfe, deltamin and satelliteRecord
     free(temp1);

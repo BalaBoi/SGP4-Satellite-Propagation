@@ -32,10 +32,10 @@ struct LatLongRegion {
 class Satellite {
 public:
     static std::vector<Satellite> readSatelliteFile(const std::string& inputFileName);
-    StateVector findStateVector(double time) const;
+    StateVector findStateVector(double time, const LatLongRegion& region) const;
     static bool containedIn(const StateVector &sv, const LatLongRegion &region);
     static double time(int year, int month, int day, int hour, int minute, double seconds);
-    Satellite(std::string tle_1, std::string tle_2);
+    Satellite(const std::string& tle_1, const std::string& tle_2);
 private:
     char typerun, typeinput, opsmode;
     gravconsttype whichconst;
